@@ -1,0 +1,84 @@
+{
+  "info": {
+    "name": "Filing Request Submission Module",
+    "description": "CRUD + submission endpoints for the customs filing intake API.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8000" },
+    { "key": "filing_id", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health check",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/"
+      }
+    },
+    {
+      "name": "Create filing",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{base_url}}/filings",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"shipment_id\": \"SHP-2026-0417\",\n  \"invoice_no\": \"INV-88214\",\n  \"port\": \"JNPT, Nhava Sheva\",\n  \"value\": 125000,\n  \"items\": [\n    { \"description\": \"Cotton fabric rolls\", \"quantity\": 40, \"unit_value\": 2500 },\n    { \"description\": \"Dye lot samples\", \"quantity\": 10, \"unit_value\": 250 }\n  ]\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const body = pm.response.json();",
+              "pm.collectionVariables.set('filing_id', body.id);",
+              "pm.test('Status is 201', () => pm.response.to.have.status(201));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "List filings",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/filings"
+      }
+    },
+    {
+      "name": "Get single filing",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/filings/{{filing_id}}"
+      }
+    },
+    {
+      "name": "Update filing (partial)",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{base_url}}/filings/{{filing_id}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"port\": \"Chennai Port\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Submit filing (fires simulated EDI webhook)",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/filings/{{filing_id}}/submit"
+      }
+    },
+    {
+      "name": "Delete filing",
+      "request": {
+        "method": "DELETE",
+        "url": "{{base_url}}/filings/{{filing_id}}"
+      }
+    }
+  ]
+}
